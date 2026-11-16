@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 자동화 실전 노트 — 실측으로 만든 실행 시스템</title>
+<meta name="description" content="블로그·SNS 자동화를 실제로 돌려보며 남긴 실측 기록. AI 업무 스킬 63종, 이미지 프롬프트 100종, 3단계 번들. 과장 없이 실패한 것까지 정리했습니다.">
+<meta property="og:title" content="AI 자동화 실전 노트 — 실측으로 만든 실행 시스템">
+<meta property="og:description" content="블로그·SNS 자동화를 실제로 돌려보며 남긴 실측 기록. 실패한 것까지 정리했습니다.">
+<meta property="og:image" content="https://huggingface.co/datasets/sangdang/blog-images/resolve/main/20261115_151803_ebook_cover_1115.png">
+<style>
+  :root{
+    --ink:#12161c; --ink2:#3d4753; --line:#e3e7ee;
+    --bg:#ffffff; --bg2:#f6f8fb; --accent:#1b4dab; --accent2:#0f2f6b;
+    --warn:#fff8e6; --warnline:#f0d089;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:940px;margin:0 auto;padding:0 20px}
+  .notice{background:var(--warn);border-bottom:1px solid var(--warnline);
+    font-size:13px;color:#6b5410;padding:9px 0;text-align:center}
+  header{padding:56px 0 40px;border-bottom:1px solid var(--line)}
+  .hero{display:flex;gap:36px;align-items:center;flex-wrap:wrap}
+  .hero-txt{flex:1 1 380px;min-width:300px}
+  .hero-img{flex:0 0 300px;max-width:300px}
+  .hero-img img{width:100%;height:auto;border-radius:14px;
+    box-shadow:0 18px 44px rgba(16,24,40,.18)}
+  .eyebrow{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.06em;
+    color:var(--accent);background:#eaf1fd;padding:5px 11px;border-radius:999px;margin-bottom:14px}
+  h1{font-size:33px;line-height:1.32;margin:0 0 14px;letter-spacing:-.02em}
+  .lead{font-size:16.5px;color:var(--ink2);margin:0 0 22px}
+  .cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;
+    font-weight:700;padding:14px 26px;border-radius:10px;font-size:15.5px}
+  .cta:hover{background:var(--accent2)}
+  .cta.sub{background:#fff;color:var(--accent);border:1.5px solid var(--accent);margin-left:8px}
+  section{padding:46px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:22px;margin:0 0 8px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);font-size:14.5px;margin:0 0 26px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+  .card{border:1px solid var(--line);border-radius:14px;padding:0 0 20px;overflow:hidden;
+    display:flex;flex-direction:column;background:#fff}
+  .card img{width:100%;height:auto;display:block;border-bottom:1px solid var(--line)}
+  .card-body{padding:18px 20px 0;flex:1}
+  .card h3{font-size:16.5px;margin:0 0 8px}
+  .card p{font-size:14px;color:var(--ink2);margin:0 0 14px}
+  .card .price{font-size:15px;font-weight:700;color:var(--accent)}
+  .card a{display:block;text-align:center;text-decoration:none;font-weight:700;font-size:14.5px;
+    color:#fff;background:var(--accent);padding:11px;border-radius:9px;margin:0 20px}
+  ul.plain{list-style:none;padding:0;margin:0}
+  ul.plain li{padding:9px 0 9px 26px;position:relative;font-size:15px;color:var(--ink2)}
+  ul.plain li:before{content:"";position:absolute;left:0;top:16px;width:9px;height:9px;
+    border-radius:3px;background:var(--accent);opacity:.75}
+  .form{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:26px}
+  .form form{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .form input[type=email]{flex:1 1 240px;padding:13px 15px;border:1px solid #cfd6e2;
+    border-radius:9px;font-size:15px;font-family:inherit}
+  .form button{background:var(--accent);color:#fff;border:0;padding:13px 22px;border-radius:9px;
+    font-weight:700;font-size:15px;cursor:pointer;font-family:inherit}
+  .form .consent{font-size:12.5px;color:#6b7482;margin-top:12px}
+  .warnbox{background:var(--warn);border:1px solid var(--warnline);border-radius:12px;
+    padding:16px 18px;font-size:13.5px;color:#6b5410}
+  footer{padding:34px 0 60px;font-size:12.5px;color:#7b8492}
+  footer p{margin:6px 0}
+  @media(max-width:640px){
+    h1{font-size:26px} .hero{padding-top:8px} .hero-img{flex:1 1 100%;max-width:100%}
+    .cta{display:block;text-align:center} .cta.sub{margin:10px 0 0}
+  }
+</style>
+</head>
+<body>
+
+<div class="notice">광고·제휴 고지: 이 페이지의 일부 링크는 구매 시 수수료를 받는 제휴 링크입니다. 가격·혜택은 판매처 기준입니다.</div>
+
+<header>
+  <div class="wrap hero">
+    <div class="hero-txt">
+      <span class="eyebrow">실측 기록 기반</span>
+      <h1>자동화는 한 번에 되지 않았습니다.<br>실패한 10가지를 먼저 정리했습니다.</h1>
+      <p class="lead">
+        블로그 발행, SNS 큐, 이미지 생성, 게이트 검수까지 직접 돌려보며 남긴 기록입니다.
+        잘 된 것보다 <strong>안 된 것</strong>을 먼저 적었습니다. 같은 시행착오를 반복하지 않도록요.
+      </p>
+      <a class="cta" href="#products">자료 보기</a>
+      <a class="cta sub" href="#free">무료 체크리스트 받기</a>
+    </div>
+    <div class="hero-img">
+      <img src="https://huggingface.co/datasets/sangdang/blog-images/resolve/main/20261115_151803_ebook_cover_1115.png"
+           alt="AI 자동화 실전 노트 전자책 표지" width="300" height="300" loading="eager">
+    </div>
+  </div>
+</header>
+
+<section id="why">
+  <div class="wrap">
+    <h2>이 자료가 다른 이유</h2>
+    <p class="sub">성공담 대신 실행 기록을 담았습니다.</p>
+    <ul class="plain">
+      <li><strong>실패를 먼저 적었습니다</strong> — 세션이 만료돼 발행이 멈춘 일, 게이트 점수가 미달해 글을 버린 일, 이미지가 본문과 안 맞아 다시 만든 일.</li>
+      <li><strong>숫자는 실측만</strong> — "몇 배 늘었다" 같은 말을 쓰지 않습니다. 측정한 값과 측정 못 한 값을 구분해 적었습니다.</li>
+      <li><strong>바로 붙여 쓰는 형태</strong> — 프롬프트·체크리스트·구조를 그대로 복사할 수 있게 정리했습니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="products">
+  <div class="wrap">
+    <h2>자료</h2>
+    <p class="sub">가격은 판매처에서 확인해 주세요. 표기된 가격은 실제 등록가입니다.</p>
+    <div class="cards">
+      <div class="card">
+        <img src="https://huggingface.co/datasets/sangdang/blog-images/resolve/main/20261115_151839_bundle_cover_1115.png"
+             alt="AI 자동화 실전 번들 표지" width="400" height="400" loading="lazy">
+        <div class="card-body">
+          <h3>AI 자동화 실전 번들</h3>
+          <p>전자책 12챕터 + Python 템플릿 10종 + 프롬프트 100종. 받은 날 바로 돌려볼 수 있게 구성했습니다.</p>
+          <p class="price">9,900원부터 · 전체 30,000원</p>
+        </div>
+        <a href="https://www.latpeed.com/products/15572?utm_source=landing&amp;utm_medium=web&amp;utm_campaign=sprint-2026q4"
+           rel="nofollow sponsored" target="_blank">구성 보기</a>
+      </div>
+
+      <div class="card">
+        <img src="https://huggingface.co/datasets/sangdang/blog-images/resolve/main/20261115_151803_ebook_cover_1115.png"
+             alt="AI 자동화 실전 노트 표지" width="400" height="400" loading="lazy">
+        <div class="card-body">
+          <h3>AI 자동화 실전 노트</h3>
+          <p>자동화가 멈추는 4가지(분량·링크·쿼터·승인)를 직접 겪고 해결한 기록입니다. 9페이지 요약.</p>
+          <p class="price">9,900원</p>
+        </div>
+        <a href="https://www.latpeed.com/products/Qxs5e?utm_source=landing&amp;utm_medium=web&amp;utm_campaign=sprint-2026q4"
+           rel="nofollow sponsored" target="_blank">판매처에서 보기</a>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding-top:22px">
+          <h3>AI 기본 활용법 (3단계)</h3>
+          <p>ChatGPT·Claude·Gemini 기본기를 초급편 → 활용편 → 워크북으로 단계별로 익히는 구성입니다.</p>
+          <p class="price">15,000원부터</p>
+        </div>
+        <a href="https://www.latpeed.com/products/LoCHT?utm_source=landing&amp;utm_medium=web&amp;utm_campaign=sprint-2026q4"
+           rel="nofollow sponsored" target="_blank">구성 보기</a>
+      </div>
+
+      <div class="card">
+        <img src="https://huggingface.co/datasets/sangdang/blog-images/resolve/main/20261115_151913_kmong_thumb_1115.png"
+             alt="AI 업무 스킬 63종 표지" width="400" height="400" loading="lazy">
+        <div class="card-body">
+          <h3>AI 업무 스킬 63종</h3>
+          <p>ChatGPT·Claude 프롬프트 63개. 보고서·메일·회의록·엑셀에 바로 붙여 쓰는 세트입니다.</p>
+          <p class="price">13,000원</p>
+        </div>
+        <a href="https://kmong.com/gig/850970?utm_source=landing&amp;utm_medium=web&amp;utm_campaign=sprint-2026q4"
+           rel="nofollow sponsored" target="_blank">구매 페이지</a>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding-top:22px">
+          <h3>AI 이미지 프롬프트 100종</h3>
+          <p>썸네일·상세페이지·블로그에 쓰는 100개. 카테고리별로 정리해 문구만 바꿔 쓰면 됩니다. 숏폼 가이드 포함.</p>
+          <p class="price">20,000원</p>
+        </div>
+        <a href="https://kmong.com/gig/850982?utm_source=landing&amp;utm_medium=web&amp;utm_campaign=sprint-2026q4"
+           rel="nofollow sponsored" target="_blank">구매 페이지</a>
+      </div>
+
+    </div>
+
+    <p style="margin-top:26px;font-size:14.5px;color:var(--ink2)">
+      🌍 해외에서 구매하시나요? 모든 자료는 <a href="https://payhip.com/AIProjectStore/shop?utm_source=landing&amp;utm_medium=web&amp;utm_campaign=sprint-2026q4" target="_blank" rel="nofollow sponsored">Payhip 글로벌 스토어</a>(USD, 카드·PayPal)에서도 구매하실 수 있습니다.
+    </p>
+  </div>
+</section>
+
+<section id="free">
+  <div class="wrap">
+    <div class="form">
+      <h2 style="font-size:20px;margin-bottom:6px">무료 체크리스트 받기</h2>
+      <p class="sub" style="margin-bottom:0">
+        블로그 발행 전 점검 체크리스트(이미지 4장·본문 배치·품질 점수 규칙)와 카드뉴스 구성 템플릿을 보내드립니다.
+      </p>
+      <!-- 계정 없는 퍼널: 같은 오리진의 /subscribe 가 수집하고 체크리스트로 즉시 이동시킨다.
+           Brevo 계정이 생기면 이 form 을 Brevo 호스팅 폼으로 교체(자동 후속 메일). -->
+      <form action="https://enabling-sculpture-drew-privacy.trycloudflare.com/subscribe" method="get">
+        <input type="hidden" name="utm_source" value="landing">
+        <input type="hidden" name="utm_campaign" value="sprint-2026q4">
+        <input type="email" name="email" placeholder="이메일 주소" required aria-label="이메일 주소">
+        <button type="submit">체크리스트 받기</button>
+      </form>
+      <p class="consent">자료 발송 목적으로만 사용합니다. 언제든 수신거부·삭제를 요청할 수 있습니다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="service">
+  <div class="wrap">
+    <h2>직접 세팅이 필요하시면</h2>
+    <p class="sub">블로그·SNS 자동화 파이프라인 구축을 대행합니다.</p>
+    <ul class="plain">
+      <li>발행 파이프라인 구축 (초안 → 이미지 → 검수 게이트 → 발행)</li>
+      <li>SNS 카드뉴스 자동 생성 세트 구성</li>
+      <li>검수 규칙·체크리스트를 문서로 인수인계</li>
+    </ul>
+    <div class="warnbox" style="margin-top:22px">
+      <strong>정직하게 말씀드립니다.</strong> 자동화는 도달 채널이 없으면 매출로 이어지지 않습니다.
+      상담 시 현재 채널 상황을 먼저 확인하고, 효과가 어려운 경우 솔직히 말씀드립니다.
+      수익을 보장하지 않습니다.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><strong>고지</strong> · 이 페이지는 정보 제공 목적이며, 수익·성과를 보장하지 않습니다.</p>
+    <p>제휴 고지: 일부 링크는 제휴 링크로, 구매 시 수수료가 발생할 수 있습니다.</p>
+    <p>가격·구성은 판매처(크몽) 기준이며 변경될 수 있습니다.</p>
+    <p style="margin-top:14px;color:#9aa3b0">© 2026 AI 자동화 실전 노트</p>
+  </div>
+</footer>
+
+</body>
+</html>
